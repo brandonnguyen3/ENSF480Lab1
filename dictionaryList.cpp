@@ -1,8 +1,9 @@
-// lookuptable.cpp
-
-// Lab 1 - Exercise A
- 
-// Completed by:
+/*
+File Name: dictionaryList.cpp
+Assignment: Lab 1 Exercise B
+Completed by: Brandon Nguyen, Darin Vicaldo
+Completed on: Sept.11 2024
+*/
 
 #include <assert.h>
 #include <iostream>
@@ -166,87 +167,93 @@ void DictionaryList::make_empty()
 // find, destroy and copy, in order to allow successful linking when you're
 // testing insert and remove. Replace them with the definitions that work.
 
-// The following function are supposed to be completed by the stuents, as part
-// of the exercise B part II. the given fucntion are in fact place-holders for
-// find, destroy and copy, in order to allow successful linking when you're
-// testing insert and remove. Replace them with the definitions that work.
-
-
 void DictionaryList::find(const Key& keyA)
 {
-  // Traverse the list to find the node with the correct key.
-  Node* temp = headM;
-
-
-  while(temp != 0 && temp->keyM != keyA){
-    temp = temp->nextM;
-  }
-
-
-  // If the node is found, set cursorM to the node. If not, it will print that the key does not exist.
-  if(temp != 0){
-    cursorM = temp;
-    return;
-  } else {
+    Node *p = headM;
+    while(p != 0){
+      if (p->keyM == keyA){
+        cursorM = p;
+        return;
+      }
+      p = p->nextM;
+    }
     cursorM = 0;
-    cout << "The key does not exist.";
-    return;
-  }
-
-
 }
+
 
 void DictionaryList::destroy()
 {
-  Node* temp = headM;
-
-
-  // While nodes still exist, Keep traversing and deleting.
-  while (temp != 0){
-    Node* next = temp->nextM;
-    delete temp;
-    temp = next;
-  }  
-
-
-  headM = 0;
-  sizeM = 0;
-  cursorM = 0;
-  return;
-}
-
-void DictionaryList::copy(const DictionaryList& source)
-{
-  destroy();
-
-  // If source is empty, nothing to copy
-  if (source.headM == nullptr) {
-    headM = nullptr;
-    sizeM = 0;
-    cursorM = nullptr;
+  //checks the case in which there is nothing to destroy or it is empty
+  if (headM == 0)
+  {
     return;
   }
 
-  Node* sourceptr = source.headM;
-  Node* last = nullptr;
-
-  // Copy the nodes from source to this list
-  while (sourceptr != nullptr) {
-    Node* newNode = new Node(sourceptr->keyM, sourceptr->datumM, nullptr);
-    
-    if (headM == nullptr) {
-      headM = newNode;
-    } else {
-      last->nextM = newNode;
-    }
-
-    last = newNode;
-    sourceptr = sourceptr->nextM;
+  Node *current = headM;
+  
+  while(current != 0){
+    Node *next = current->nextM;
+    delete current;
+    current = next;
   }
 
-  sizeM = source.sizeM;
-  return;
+
+  cursorM = 0;
+  sizeM = 0;
+  headM = 0;
 }
 
 
+void DictionaryList::copy(const DictionaryList& source)
+{
+    //Handles the edge case where the source list is empty
+    if (source.headM == 0)
+    {
+        this->headM = 0;
+        this->cursorM = 0;
+        this->sizeM = 0;
+        return;
+    }
 
+    //Initialization
+    this->headM = 0;
+    this->cursorM = 0;
+    this->sizeM = 0;
+
+    /*Creates two pointers. Current will start at the source's head. Next will be initialized with 0*/
+    Node* sourcePointer = source.headM;
+    Node* copyPointer = 0;
+
+    //Code for creating the 1st node. Creates the first node and initializes it with the source's value at the head
+    this->headM = new Node(sourcePointer->keyM, sourcePointer->datumM, 0);
+
+    //moves the copy pointer up 
+    copyPointer = this->headM;
+
+    //increases the size. 
+    this->sizeM++;
+
+    //Using the same strategy as above, create the rest of the nodes. 
+    while (sourcePointer->nextM != 0)
+    {
+        //moves the sourcePointer up to the next 
+        sourcePointer = sourcePointer->nextM;
+
+        //creates the next new node with the data from the source
+        copyPointer->nextM = new Node(sourcePointer->keyM, sourcePointer->datumM, 0);
+
+        //Update the copy's cursor if it equals the source's cursor position
+        if (source.cursorM == sourcePointer)
+        {
+            this->cursorM = copyPointer->nextM;
+        }
+        copyPointer = copyPointer->nextM;
+        this->sizeM++;
+    }
+
+    //sets cursorM if we run into the case that it was at the head.
+    if (source.cursorM == source.headM)
+    {
+        this->cursorM = this->headM;
+    }
+}
